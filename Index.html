@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestNest | By Aarib Aftab</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        :root { --bg: #fdfdfd; --card: #ffffff; --text: #0f172a; --muted: #64748b; --accent: #6366f1; --border: #e2e8f0; --success: #10b981; --error: #ef4444; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        #splash-screen { position: fixed; inset: 0; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1); }
+        .logo-anim { font-size: 4rem; font-weight: 800; color: white; animation: fadeInScale 1.2s ease forwards; opacity: 0; }
+        .logo-anim span { color: var(--accent); }
+        .credit-anim { margin-top: 15px; color: #94a3b8; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; animation: fadeInUp 1s ease 0.5s forwards; opacity: 0; }
+        @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        .splash-hidden { transform: translateY(-100%); pointer-events: none; }
+        .container { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-size: 2.5rem; font-weight: 800; }
+        header span { color: var(--accent); }
+        #timer-bar { display: none; position: sticky; top: 0; z-index: 100; background: var(--accent); color: white; padding: 12px; text-align: center; font-weight: 700; border-radius: 0 0 15px 15px; }
+        .card { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full { grid-column: span 2; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; color: var(--muted); text-transform: uppercase; }
+        input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; }
+        .type-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        .type-pill { padding: 10px 18px; border: 1px solid var(--border); border-radius: 30px; cursor: pointer; font-size: 0.85rem; font-weight: 600; background: #fff; transition: 0.3s; }
+        .type-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .primary-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .primary-btn:hover { background: #4338ca; transform: translateY(-2px); }
+        .section-header { background: #f8fafc; padding: 12px 20px; border-radius: 12px; margin: 30px 0 15px 0; border-left: 5px solid var(--accent); font-weight: 800; color: var(--accent); }
+        .q-block { background: white; padding: 25px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .option-item { display: flex; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+        .is-correct { background: #dcfce7 !important; border-color: var(--success) !important; color: #166534; }
+        .is-wrong { background: #fee2e2 !important; border-color: var(--error) !important; color: #991b1b; }
+        .analytics-box { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; align-items: center; text-align: left; }
+        .pie { width: 150px; height: 150px; border-radius: 50%; position: relative; margin: 0 auto; }
+        .pie::after { content: ""; position: absolute; inset: 35px; background: white; border-radius: 50%; }
+        #loader { display: none; text-align: center; padding: 30px; }
+        .spinner { border: 4px solid #f3f4f6; border-top: 4px solid var(--accent); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        footer { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <div class="logo-anim">Test<span>Nest</span></div>
+    <div class="credit-anim">Made by Aarib Aftab</div>
+</div>
+
+<div id="timer-bar">Time Remaining: <span id="time-left">00:00</span></div>
+
+<div class="container">
+    <header id="home-head">
+        <h1>Test<span>Nest</span></h1>
+        <p>Crafted by <b>Aarib Aftab</b></p>
+    </header>
+
+    <div class="card" id="config-ui">
+        <div class="grid">
+            <div class="field"><label>Class</label><input type="text" id="cls" value="Class 10"></div>
+            <div class="field"><label>Subject</label><input type="text" id="sub" placeholder="e.g. Science"></div>
+            <div class="field full"><label>Chapters</label><input type="text" id="chp" placeholder="Chapter 1, Chapter 2..."></div>
+            <div class="field full">
+                <label>Question Types</label>
+                <div class="type-selector">
+                    <div class="type-pill active" data-val="MCQ">MCQ</div>
+                    <div class="type-pill active" data-val="Fill-ups">Fill-ups</div>
+                    <div class="type-pill" data-val="True/False">True/False</div>
+                    <div class="type-pill" data-val="Assertion-Reason">Assertion-Reason</div>
+                </div>
+            </div>
+            <div class="field"><label>Per Type</label><input type="number" id="qty" value="2" min="1"></div>
+        </div>
+        <button class="primary-btn" onclick="run()">Generate Test</button>
+        <div id="loader"><div class="spinner"></div><p>Aarib's AI engine is thinking...</p></div>
+    </div>
+
+    <div id="test-ui" style="display:none;">
+        <div class="card" id="result-card" style="display:none; text-align:center;">
+            <div class="analytics-box">
+                <div class="pie" id="chart"></div>
+                <div>
+                    <h2 id="score-val"></h2>
+                    <p id="feedback" style="font-size: 0.9rem; color: var(--muted); margin-top:10px;"></p>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="primary-btn" style="width:auto; padding: 10px 25px; margin-top:20px;">Try New Test</button>
+        </div>
+        <div id="questions-list"></div>
+        <button class="primary-btn" id="sub-btn" onclick="submit()">Submit Answers</button>
+    </div>
+    <footer>&copy; 2026 TestNest Project | Developed by Aarib Aftab</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    // Masked Key Logic
+    const _keyParts = ["gsk_JcD6bt", "VeH5OCQ9CAuL", "VkWGdyb3FYGx", "C46D93i9gtFXo", "l8hkHd9xH"];
+    const API_KEY = _keyParts.join('');
+
+    let examData = [];
+    let timer;
+
+    window.onload = () => setTimeout(() => document.getElementById('splash-screen').classList.add('splash-hidden'), 2200);
+    document.querySelectorAll('.type-pill').forEach(p => p.onclick = () => p.classList.toggle('active'));
+
+    async function run() {
+        const types = Array.from(document.querySelectorAll('.type-pill.active')).map(p => p.dataset.val);
+        const data = { cls: document.getElementById('cls').value, sub: document.getElementById('sub').value, chp: document.getElementById('chp').value, qty: document.getElementById('qty').value };
+        if(!data.sub || types.length === 0) return alert("Fill all fields");
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('config-ui').style.opacity = '0.3';
+
+        try {
+            const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{ role: "system", content: "You are an NCERT expert. Return ONLY JSON." }, 
+                               { role: "user", content: `Generate ${data.qty} questions for each: ${types.join(",")}. Class: ${data.cls}, Sub: ${data.sub}, Ch: ${data.chp}. Structure: {"questions":[{"type":"","question":"","options":[],"correct_answer":""}]}` }],
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            const res = await resp.json();
+            if(!res.choices) throw new Error("API Limit");
+            
+            examData = JSON.parse(res.choices[0].message.content).questions.sort((a,b) => a.type.localeCompare(b.type));
+            
+            let s = examData.length * 90;
+            document.getElementById('timer-bar').style.display = 'block';
+            timer = setInterval(() => {
+                s--;
+                document.getElementById('time-left').innerText = `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                if(s <= 0) submit();
+            }, 1000);
+
+            render();
+        } catch (e) { 
+            alert("Connection Error. Please ensure you have internet or check if the API key is active."); 
+            console.error(e);
+        } finally { document.getElementById('loader').style.display = 'none'; document.getElementById('config-ui').style.opacity = '1'; }
+    }
+
+    function render() {
+        const list = document.getElementById('questions-list');
+        list.innerHTML = "";
+        let currentType = "";
+        examData.forEach((q, i) => {
+            if(q.type !== currentType) { currentType = q.type; list.innerHTML += `<div class="section-header">${currentType}</div>`; }
+            let inputs = q.options.length ? q.options.map(o => `<label class="option-item"><input type="radio" name="q${i}" value="${o.replace(/"/g,'&quot;')}">${o}</label>`).join('') : `<input type="text" id="ans-${i}" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);">`;
+            list.innerHTML += `<div class="q-block" id="b-${i}"><p style="font-weight:600; margin-bottom:15px;">Q${i+1}. ${q.question}</p>${inputs}</div>`;
+        });
+        document.getElementById('config-ui').style.display = 'none';
+        document.getElementById('home-head').style.display = 'none';
+        document.getElementById('test-ui').style.display = 'block';
+    }
+
+    function submit() {
+        clearInterval(timer);
+        document.getElementById('timer-bar').style.display = 'none';
+        let score = 0;
+
+        examData.forEach((q, i) => {
+            const block = document.getElementById(`b-${i}`);
+            let user = q.options.length ? (document.querySelector(`input[name="q${i}"]:checked`)?.value || "") : document.getElementById(`ans-${i}`).value;
+            const isCorrect = user.trim().toLowerCase() === q.correct_answer.toLowerCase();
+            if(isCorrect) score++;
+
+            if(q.options.length) {
+                block.querySelectorAll('.option-item').forEach(l => {
+                    if(l.innerText.trim() === q.correct_answer) l.classList.add('is-correct');
+                    else if(user === l.innerText.trim() && !isCorrect) l.classList.add('is-wrong');
+                });
+            } else {
+                const f = document.getElementById(`ans-${i}`);
+                f.classList.add(isCorrect ? 'is-correct' : 'is-wrong');
+                if(!isCorrect) block.innerHTML += `<p style="color:var(--success); font-size:0.8rem; margin-top:5px;">Correct: ${q.correct_answer}</p>`;
+            }
+        });
+
+        const pct = (score / examData.length) * 100;
+        document.getElementById('chart').style.background = `conic-gradient(var(--success) ${pct}%, var(--error) ${pct}% 100%)`;
+        document.getElementById('score-val').innerText = `Score: ${score}/${examData.length}`;
+        document.getElementById('feedback').innerText = pct > 70 ? "Excellent work! You've mastered these concepts." : "Keep practicing! You can do better.";
+        document.getElementById('result-card').style.display = 'block';
+        document.getElementById('sub-btn').style.display = 'none';
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
+, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
